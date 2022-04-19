@@ -5,17 +5,17 @@ import './index.css';
 import Card from '../components/Card';
 
 function PlayerList() {
-  const [teamList, setTeamList] = useState([]);
+  const [displayList, setDisplayList] = useState([]);
   const [playerList, setPlayerList] = useState([]);
 
   useEffect(() => {
     fetch(API_URL).then(response => {
       response.json().then(res => {
         setPlayerList(get(res, 'playerList', []));
-        setTeamList(get(res, 'teamList', []));
+        setDisplayList(get(res, 'playerList', []));
       }).catch(e => {
         setPlayerList([]);
-        setTeamList([]);
+        setDisplayList([]);
       })
     })
   }, []);
@@ -24,10 +24,25 @@ function PlayerList() {
     return <Card player={player} />
   }
 
+  const filterElements = (searchString) => {
+    const filtered = playerList.filter((player) => {
+      return (player.TName.toLowerCase().startsWith(searchString)) || (player.PFName.toLowerCase().startsWith(searchString))
+    });
+    return filtered;
+  }
+
+  const handleSearchange = (e) => {
+    const searchString = e.target.value;
+    const updatedList = filterElements(searchString.toLowerCase()) || playerList;
+    setDisplayList(updatedList);
+  }
+
   return (
     <>
+      <input onChange={(e) => handleSearchange(e)} type="search" placeholder="Name / Team" />
+      
       <div className="playerList">
-        {playerList.map((player) => displayPlayer(player))}
+        {displayList.map((player) => displayPlayer(player))}
       </div>
     </>
   )
